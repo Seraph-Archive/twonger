@@ -30,10 +30,10 @@ const thoughtController = {
         });
     },
 
-    createThought({ params, body}, res) {
+    createThought({ body }, res) {
         Thought.create(body).then(({ _id }) => {
             return User.findOneAndUpdate(
-                { _id: params.userId },
+                { _id: body.userId },
                 { $push: { thoughts: _id } },
                 { new: true }
             );
@@ -44,23 +44,7 @@ const thoughtController = {
             res.json({ message: 'Thought created' });
         })
         .catch((err) => {
-            console.err(err)
-            res.sendStatus(400);
-        });
-    },
-
-    updateThought({ params, body }, res) {
-        Thought.findOneAndUpdate({ _id: params.thoughtId }, body, {
-            new: true,
-            runValidators: true
-        }).then((thoughtData) => {
-            if(!thoughtData) {
-                return res.status(404).json({ message: 'No thought with this ID' });
-            }
-            res.json(thoughtData);
-        })
-        .catch((err) => {
-            console.err(err)
+            console.log(err)
             res.sendStatus(400);
         });
     },
@@ -109,7 +93,7 @@ const thoughtController = {
     deleteReaction({ params }, res) {
         Thought.findOneAndUpdate(
             { _id: params.thoughtId },
-            { $pull: { reactions: {reactionId: params.reactionId } } },
+            { $pull: { reactions: { reactionId: params.reactionId } } },
             {new: true }
         ).then((thoughtData) => {
             res.json(thoughtData)
